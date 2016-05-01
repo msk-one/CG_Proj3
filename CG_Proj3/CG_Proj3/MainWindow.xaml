@@ -1,0 +1,32 @@
+﻿<Window x:Class="CG_Proj3.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CG_Proj3"
+        mc:Ignorable="d"
+        Title="CG Project 3" Height="768" Width="1024" ResizeMode="NoResize">
+    <Grid>
+        <StackPanel HorizontalAlignment="Left" Height="720" Margin="835,0,0,0" VerticalAlignment="Top" Width="183" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+            <Button x:Name="line_button" Content="Line" Margin="5,20,15,0"/>
+            <Button x:Name="circle_button" Content="Circle" Margin="5,5,15,0"/>
+            <Label x:Name="label" Content="Brush size:" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+            <ComboBox x:Name="brushSize" Margin="20,5,25,0">
+                <ComboBoxItem Content="1" IsSelected="True"/>
+                <ComboBoxItem Content="5"/>
+                <ComboBoxItem Content="10"/>
+            </ComboBox>
+            <Label x:Name="label1" Content="Antialiasing:" HorizontalAlignment="Center" Margin="0,30,0,0"/>
+            <ComboBox x:Name="antialiasing_type" Margin="15,0,20,0">
+                <ComboBoxItem Content="MidPoint" IsSelected="True"/>
+                <ComboBoxItem Content="MidLine"/>
+                <ComboBoxItem Content="Gupta"/>
+            </ComboBox>
+        </StackPanel>
+        <StatusBar Height="19" VerticalAlignment="Bottom">
+            <StatusBarItem Content="Ready" Height="19" VerticalAlignment="Top" HorizontalAlignment="Right"/>
+        </StatusBar>
+        <Canvas x:Name="mainCanvas" HorizontalAlignment="Left" Height="720" VerticalAlignment="Top" Width="835" MouseDown="mainCanvas_MouseDown" MouseUp="mainCanvas_MouseUp" MouseMove="mainCanvas_MouseMove" Background="White"/>
+
+    </Grid>
+</Window>
