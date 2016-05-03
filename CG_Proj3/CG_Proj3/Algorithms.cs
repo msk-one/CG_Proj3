@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace CG_Proj3
 {
     class Algorithms
     {
-        private void AddPixel(Canvas c, double x, double y)
+        public static Canvas canvas;
+
+        public static void DrawPixel(Canvas c, int x, int y)
         {
             Rectangle rec = new Rectangle();
             Canvas.SetTop(rec, y);
@@ -22,7 +26,7 @@ namespace CG_Proj3
             c.Children.Add(rec);
         }
 
-        public void MidpointLine(Canvas c, int x1, int y1, int x2, int y2)
+        public static void MidpointLine(Canvas c, int x1, int y1, int x2, int y2)
         {
             int dx = x2 - x1;
             int dy = y2 - y1;
@@ -30,9 +34,27 @@ namespace CG_Proj3
             int d = 2*dy - dx;
             int dE = 2*dy;
             int dNE = 2*(dy - dx);
-            int x = x1, y = y1;
+            int x = x1;
+            int y = y1;
 
-            AddPixel(c, x, y);
+            DrawPixel(c, x, y);
+
+            if (dx == 0)
+            {
+                for (int i = y1; i < y2; i++)
+                {
+                    DrawPixel(c, x1, i);
+                }
+            }
+
+            if (dy == 0)
+            {
+                for (int i = x1; i < x2; i++)
+                {
+                    DrawPixel(c, i, y1);
+                }
+            }
+
             while (x < x2)
             {
                 if (d < 0)
@@ -46,51 +68,105 @@ namespace CG_Proj3
                     ++x;
                     ++y;
                 }
-                AddPixel(c, x, y);
+                DrawPixel(c, x, y);
             }
         }
 
-        public void SymmetricMidpointLine(Canvas c, int x1, int y1, int x2, int y2)
+        public static void SymmMidpointLine(Canvas c, int x1, int y1, int x2, int y2)
         {
+            int d;
             int dx = x2 - x1;
             int dy = y2 - y1;
 
-            int d = 2*dy - dx;
-            int dE = 2*dy;
-            int dNE = 2*(dy - dx);
-            int xf = x1, yf = y1;
-            int xb = x2, yb = y2;
+            int dE;
+            int dNE;
 
-            AddPixel(c, xf, yf);
-            AddPixel(c, xb, yb);
+            int sx = (int)Math.Sign(dx);
+            int sy = (int)Math.Sign(dy);
+            dx = Math.Abs(dx);
+            dy = Math.Abs(dy);
 
-            while (xf < xb)
-            {
-                ++xf;
-                --xb;
-                if (d < 0)
-                    d += dE;
-                else
+            int xf = x1;
+            int yf = y1;
+            int xb = x2;
+            int yb = y2;
+
+            DrawPixel(c, xf, yf);
+            DrawPixel(c, xb, yb);
+
+            if (dx == 0) {
+                for (int i = y1; i < y2; i++)
                 {
-                    d += dNE;
-                    ++yf;
-                    --yb;
+                    DrawPixel(c, x1, i);
                 }
+            }
 
-                AddPixel(c, xf, yf);
-                AddPixel(c, xb, yb);
+            if (dy == 0) {
+                for (int i = x1; i < x2; i++)
+                {
+                    DrawPixel(c, i, y1);
+                }
+            }
+
+            if (dy > dx) {
+
+                dE = 2 * dx;
+                dNE = 2 * (dx - dy);
+                d = 2 * dx - dy;
+
+                while (yf != y2)
+                {
+                    xf += sx;
+                    xb -= sx;
+
+                    if (d <= 0) {
+                        d += dE;
+                    }
+                    else {
+                        d += dNE;
+                        yf += sy;
+                        yb -= sy;
+                    }
+
+                    DrawPixel(c, xf, yf);
+                    DrawPixel(c, xb, yb);
+                }
+            }
+            else {
+
+                dE = 2*dy;
+                dNE = 2*(dy - dx);
+                d = 2*dy - dx;
+
+                while (xf != x2)
+                {
+                    xf += sx;
+                    xb -= sx;
+
+                    if (d <= 0) {
+                        d += dE;
+                    }
+                    else {
+                        d += dNE;
+                        yf += sy;
+                        yb -= sy;
+                    }
+
+                    DrawPixel(c, xf, yf);
+                    DrawPixel(c, xb, yb);
+                }
             }
         }
 
-        public void MidpointCircle(Canvas c, int R)
+        public static void MidpointCircle(Canvas c, int x, int y, int R)
         {
             int dE = 3;
             int dSE = 5 - 2*R;
             int d = 1 - R;
-            int x = 0;
-            int y = R;
+            //int x = 0;
+            //int y = R;
 
-            AddPixel(c, x, y);
+            DrawPixel(c, x, y);
             while (y > x)
             {
                 if (d < 0)
@@ -107,7 +183,7 @@ namespace CG_Proj3
                     --y;
                 }
                 ++x;
-                AddPixel(c, x, y);
+                DrawPixel(c, x, y);
             }
 
         }
