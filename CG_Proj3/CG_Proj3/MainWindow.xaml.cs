@@ -20,111 +20,50 @@ namespace CG_Proj3
 {
     public partial class MainWindow : Window
     {
-        private bool isMouseDown = false;
         private bool lineMode= false;
         private bool circleMode = false;
         private int lineSize = 1;
-        private List<Point> linePoints;
-        public WriteableBitmap wbmap;
+        private bool mouseClicked = true;
         public MainWindow()
         {
             InitializeComponent();
-            linePoints = new List<Point>();
         }
-
-        private void mainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            isMouseDown = true;
-        }
-
-        private void mainCanvas_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            isMouseDown = false;
-            if (lineMode)
-            {
-                if (linePoints.Count < 1)
-                {
-                    //linePoints.Add(new Point(e.GetPosition(mainCanvas).X, e.GetPosition(mainCanvas).Y));
-                }
-                else if (linePoints.Count == 1)
-                {
-                    //linePoints.Add(new Point(e.GetPosition(mainCanvas).X, e.GetPosition(mainCanvas).Y));
-                    //Line line = new Line();
-                    //line.Stroke = Brushes.Black;
-                    //line.StrokeThickness = lineSize;
-                    //line.X1 = linePoints[0].X;
-                    //line.Y1 = linePoints[0].Y;
-                    //line.X2 = linePoints[1].X;
-                    //line.Y2 = linePoints[1].Y;
-
-                    //mainCanvas.Children.Add(line);
-                    //linePoints.Clear();
-
-                    Algorithms alg = new Algorithms();
-                    //TODO: midline, symm. midline, gupta-sproull
-                    if (antialiasing_type.Text == "MidLine")
-                    {
-                        //alg.MidpointLine(mainCanvas, Convert.ToInt32(linePoints[0].X), Convert.ToInt32(linePoints[0].Y), Convert.ToInt32(linePoints[1].X), Convert.ToInt32(linePoints[1].Y));
-                    }
-                    else if (antialiasing_type.Text == "Symmetric MidLine")
-                    {
-                        //alg.SymmetricMidpointLine(mainCanvas, Convert.ToInt32(linePoints[0].X), Convert.ToInt32(linePoints[0].Y), Convert.ToInt32(linePoints[1].X), Convert.ToInt32(linePoints[1].Y));
-                    }
-                    else if (antialiasing_type.Text == "Gupta-Sproull")
-                    {
-
-                    }
-                    linePoints.Clear();
-                }
-            }
-            else
-            {
-                //Ellipse customCircle = new Ellipse();
-                //Point brushPosition = new Point(e.GetPosition(mainCanvas).X, e.GetPosition(mainCanvas).Y);
-                //customCircle.Fill = Brushes.Transparent;
-                //customCircle.StrokeThickness = lineSize;
-                //customCircle.Stroke = Brushes.Black;
-
-                //customCircle.Width = lineSize*10;
-                //customCircle.Height = lineSize*10;
-
-                //Canvas.SetTop(customCircle, brushPosition.Y);
-                //Canvas.SetLeft(customCircle, brushPosition.X);
-
-                //mainCanvas.Children.Add(customCircle);
-
-                //TODO: midline
-                Algorithms alg = new Algorithms();
-                if (antialiasing_type.Text == "MidLine")
-                {
-                    //alg.MidpointCircle(mainCanvas, lineSize*10);
-                }
-            }
-        }
-
-        private void mainCanvas_MouseMove(object sender, MouseEventArgs e) {}
 
         private void line_button_Click(object sender, RoutedEventArgs e)
         {
             lineMode = true;
             circleMode = false;
-            lineSize = Convert.ToInt32(brushSize.Text);
-            int x1 = Convert.ToInt32(X1.Text);
-            int x2 = Convert.ToInt32(X2.Text);
-            int y1 = Convert.ToInt32(Y1.Text);
-            int y2 = Convert.ToInt32(Y2.Text);
+            int x1, x2, y1, y2;
+            //change THIS for other thicknesses:
+            int thickness = 1;
 
-            if (antialiasing_type.Text == "MidLine")
+            try
             {
-                Algorithms.MidpointLine(mainCanvas, x1, y1, x2, y2);
-            }
-            else if (antialiasing_type.Text == "Symmetric MidLine")
-            {
-                Algorithms.SymmMidpointLine(mainCanvas, x1, y1, x2, y2);
-            }
-            else if (antialiasing_type.Text == "Gupta-Sproull")
-            {
+                x1 = Convert.ToInt32(X1.Text);
+                x2 = Convert.ToInt32(X2.Text);
+                y1 = Convert.ToInt32(Y1.Text);
+                y2 = Convert.ToInt32(Y2.Text);
 
+                if (antialiasing_type.Text == "MidLine")
+                {
+                    Algorithms.MidpointLine(mainCanvas, x1, y1, x2, y2);
+                }
+                else if (antialiasing_type.Text == "Symmetric MidLine")
+                {
+                    Algorithms.SymmMidpointLine(mainCanvas, x1, y1, x2, y2);
+                }
+                else if (antialiasing_type.Text == "Gupta-Sproull")
+                {
+                    Algorithms.GuptaSproull(mainCanvas, x1, y1, x2, y2, thickness);
+                }
+            }
+            catch (FormatException ex)
+            {
+                MessageBox.Show("Input of wrong format!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Something wrong happened!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
    
@@ -132,14 +71,57 @@ namespace CG_Proj3
         {
             lineMode = false;
             circleMode = true;
-            lineSize = Convert.ToInt32(brushSize.Text);
-            int x1 = Convert.ToInt32(X1.Text);
-            int y1 = Convert.ToInt32(Y1.Text);
 
-            if (antialiasing_type.Text == "MidLine")
+            try
             {
-                Algorithms.MidpointCircle(mainCanvas, x1, y1, Convert.ToInt32(R.Text));
+                int x1 = Convert.ToInt32(X1.Text);
+                int y1 = Convert.ToInt32(Y1.Text);
+
+                if (antialiasing_type.Text == "MidLine")
+                {
+                    Algorithms.MidpointCircle(mainCanvas, x1, y1, Convert.ToInt32(R.Text));
+                }
             }
+            catch (FormatException ex)
+            {
+                MessageBox.Show("Input of wrong format!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Something wrong happened!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void mainCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (mouseClicked) {
+                coord_X.Content = "X: " + e.GetPosition(mainCanvas).X;
+                coord_Y.Content = "Y: " + e.GetPosition(mainCanvas).Y;
+            }
+        }
+
+        private void mainCanvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (mouseClicked) { mouseClicked = false; }
+            else { mouseClicked = true; }
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            string coordsX = coord_X.Content as string;
+            string coordsY = coord_Y.Content as string;
+
+            X1.Text = coordsX.Substring(3);
+            Y1.Text = coordsY.Substring(3);
+        }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            string coordsX = coord_X.Content as string;
+            string coordsY = coord_Y.Content as string;
+
+            X2.Text = coordsX.Substring(3);
+            Y2.Text = coordsY.Substring(3);
         }
     }
 }

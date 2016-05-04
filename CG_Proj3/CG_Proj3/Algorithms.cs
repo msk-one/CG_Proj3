@@ -26,49 +26,69 @@ namespace CG_Proj3
             c.Children.Add(rec);
         }
 
-        public static void MidpointLine(Canvas c, int x1, int y1, int x2, int y2)
+        public static void DrawPixel(Canvas c, int x, int y, int color)
         {
-            int dx = x2 - x1;
-            int dy = y2 - y1;
+            Rectangle rec = new Rectangle();
+            Canvas.SetTop(rec, y);
+            Canvas.SetLeft(rec, x);
+            rec.Width = 1;
+            rec.Height = 1;
+            //rec.Fill = new SolidColorBrush(Color.);
+            c.Children.Add(rec);
+        }
 
-            int d = 2*dy - dx;
-            int dE = 2*dy;
-            int dNE = 2*(dy - dx);
-            int x = x1;
-            int y = y1;
+        public static void MidpointLine(Canvas c, int x0, int y0, int x1, int y1)
+        {
+            bool steep;
+            int dx;
+            int dy;
+            int err;
+            int y;
+            int ystep;
 
-            DrawPixel(c, x, y);
+            //octant handling:
+            steep = Math.Abs(x1 - x0) < Math.Abs(y1 - y0);
+            if (steep) {
+                int t;
+                t = x0;
+                x0 = y0;
+                y0 = t;
 
-            if (dx == 0)
-            {
-                for (int i = y1; i < y2; i++)
-                {
-                    DrawPixel(c, x1, i);
-                }
+                t = x1;
+                x1 = y1;
+                y1 = t;
+            }
+            if (x0 > x1) {
+                int t;
+                t = x0;
+                x0 = x1;
+                x1 = t;
+
+                t = y0;
+                y0 = y1;
+                y1 = t;
             }
 
-            if (dy == 0)
-            {
-                for (int i = x1; i < x2; i++)
-                {
-                    DrawPixel(c, i, y1);
-                }
+            dx = x1-x0;
+            dy = Math.Abs(y1-y0);
+            err = dx/2;
+            y = y0;
+
+            if (y0 < y1) {
+                ystep = 1;
+            }
+            else {
+                ystep = -1;
             }
 
-            while (x < x2)
-            {
-                if (d < 0)
-                {
-                    d += dE;
-                    x++;
+            for (int x = x0; x <= x1; x++) {
+                DrawPixel(c, (steep ? y : x), (steep ? x : y));
+
+                err -= dy;
+                if (err < 0) {
+                    err += dx;
+                    y += ystep;
                 }
-                else
-                {
-                    d += dNE;
-                    ++x;
-                    ++y;
-                }
-                DrawPixel(c, x, y);
             }
         }
 
@@ -158,76 +178,112 @@ namespace CG_Proj3
             }
         }
 
-        public static void MidpointCircle(Canvas c, int x, int y, int R)
+        public static void MidpointCircle(Canvas c, int x0, int y0, int R)
         {
-            int dE = 3;
-            int dSE = 5 - 2*R;
-            int d = 1 - R;
-            //int x = 0;
-            //int y = R;
+            int x = 0;
+            int y = R;
+            int d = 1-R;
 
-            DrawPixel(c, x, y);
-            while (y > x)
-            {
-                if (d < 0)
-                {
-                    d += dE;
-                    dE += 2;
-                    dSE += 2;
+            do {
+                if (d < 0) {
+                    d = d + 2*(++x) + 3;
                 }
-                else
-                {
-                    d += dSE;
-                    dE += 2;
-                    dSE += 4;
-                    --y;
+                else {
+                    d = d + 2*(++x) - 2*(--y) + 5;
                 }
-                ++x;
-                DrawPixel(c, x, y);
-            }
+
+                DrawPixel(c, x0 + x, y0 + y);
+                DrawPixel(c, x0 - x, y0 + y);
+                DrawPixel(c, x0 + x, y0 - y);
+                DrawPixel(c, x0 - x, y0 - y);
+                DrawPixel(c, x0 + y, y0 + x);
+                DrawPixel(c, x0 - y, y0 + x);
+                DrawPixel(c, x0 + y, y0 - x);
+                DrawPixel(c, x0 - y, y0 - x);
+
+            } while (x < y);
 
         }
 
-        //int IntensifyPixel(Canvas c, int x, int y, float thickness, float distance)
+        private static float coverage(float d, float r)
+        {
+            if (d <= r)
+            {
+                return (float) (0.5 - (d*Math.Sqrt(r*r - d*d)/(Math.PI*r*r)) - (1/(Math.PI*Math.Asin(d/r))));
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        //public int colorLerp(int A, int B, int l, int L)
         //{
-        //    float cov = coverage(thickness, distance);
-        //    if (cov > 0)
-        //        AddPixel(c, x, y, lerp(BKG_COLOR, LINE_COLOR, cov));
-        //    return cov;
+        //    int Ar = (A >> 16) & 0xff;
+        //    int Ag = (A >> 8) & 0xff;
+        //    int Ab = A & 0xff;
+        //    int Br = (B >> 16) & 0xff;
+        //    int Bg = (B >> 8) & 0xff;
+        //    int Bb = B & 0xff;
+
+        //    int Yr = (int)(Ar + l * (Br - Ar) / (float)L);
+        //    int Yg = (int)(Ag + l * (Bg - Ag) / (float)L);
+        //    int Yb = (int)(Ab + l * (Bb - Ab) / (float)L);
+        //    return (int) (0xff000000 |
+        //                  ((Yr << 16) & 0xff0000) |
+        //                  ((Yg << 8) & 0xff00) |
+        //                  (Yb & 0xff));
         //}
 
-        //public int GuptaSproull(int x1, int y1, int x2, int y2, float thickness)
-        //{
-        //    int dx = x2 - x1, dy = y2 - y1;
-        //    int dE = 2*dy, dNE = 2*(dy - dx);
-        //    int d = 2*dy - dx;
-        //    int two_v_dx = 0; //numerator, v=0 for the first pixel
-        //    float invDenom = (float) (1/(2*Math.Sqrt(dx*dx + dy*dy)));
-        //    float two_dx_invDenom = 2*dx*invDenom; //precomputed constant
-        //    int x = x1, y = y1;
-        //    int i;
-        //    IntensifyPixel(x, y, thickness, 0);
-        //    for (i = 1; IntensifyPixel(x, y + i, thickness, i*two_dx_invDenom); ++i) ;
-        //    for (i = 1; IntensifyPixel(x, y - i, thickness, i*two_dx_invDenom); ++i) ;
-        //    while (x < x2)
-        //    {
-        //        ++x;
-        //        if (d < 0) // move to E
-        //        {
-        //            two_v_dx = d + dx;
-        //            d += dE;
-        //        }
-        //        else // move to NE
-        //        {
-        //            two_v_dx = d - dx;
-        //            d += dNE;
-        //            ++y;
-        //        }
+        private static float lerp(float v0, float v1, float t)
+        {
+            return (1 - t) * v0 + t * v1;
+        }
 
-        //        IntensifyPixel(x, y, thickness, two_v_dx*invDenom);
-        //        for (i = 1; IntensifyPixel(x, y + i, thickness, i*two_dx_invDenom - two_v_dx*invDenom); ++i);
-        //        for (i = 1; IntensifyPixel(x, y - i, thickness, i*two_dx_invDenom + two_v_dx*invDenom); ++i);
-        //    }
-        //}
+        private static int IntensifyPixel(Canvas c, int x, int y, float d, float r)
+        {
+            float cov = coverage(d, r);
+            if (cov > 0)
+                DrawPixel(c, x, y, (int)lerp(System.Drawing.Color.White.ToArgb(), System.Drawing.Color.Black.ToArgb(), cov));
+            return (int) cov;
+        }
+
+        public static void GuptaSproull(Canvas c, int x1, int y1, int x2, int y2, float thickness)
+        {
+            int dx = x2 - x1, dy = y2 - y1;
+            int dE = 2 * dy, dNE = 2 * (dy - dx);
+            int d = 2 * dy - dx;
+            int two_v_dx = 0;
+            float invDenom = (float)(1 / (2*Math.Sqrt(dx*dx + dy*dy)));
+            float two_dx_invDenom = 2 * dx * invDenom;
+            int x = x1, y = y1;
+            int i;
+
+            IntensifyPixel(c, x, y, thickness, 0);
+
+            for (i = 1; IntensifyPixel(c, x, y + i, thickness, i * two_dx_invDenom) != 0; ++i) ;
+            for (i = 1; IntensifyPixel(c, x, y - i, thickness, i * two_dx_invDenom) != 0; ++i) ;
+
+            while (x < x2)
+            {
+                ++x;
+                if (d < 0)
+                {
+                    two_v_dx = d+dx;
+                    d += dE;
+                }
+                else
+                {
+                    two_v_dx = d-dx;
+                    d += dNE;
+                    ++y;
+                }
+
+                IntensifyPixel(c, x, y, thickness, two_v_dx * invDenom);
+
+                for (i = 1; IntensifyPixel(c, x, y + i, thickness, i * two_dx_invDenom - two_v_dx * invDenom) != 0; ++i) ;
+                for (i = 1; IntensifyPixel(c, x, y - i, thickness, i * two_dx_invDenom + two_v_dx * invDenom) != 0; ++i) ;
+            }
+        }
     }
 }
