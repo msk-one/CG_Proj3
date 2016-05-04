@@ -34,7 +34,6 @@ namespace CG_Proj3
             lineMode = true;
             circleMode = false;
             int x1, x2, y1, y2;
-            //change THIS for other thicknesses:
             int thickness = 1;
 
             try
@@ -43,6 +42,10 @@ namespace CG_Proj3
                 x2 = Convert.ToInt32(X2.Text);
                 y1 = Convert.ToInt32(Y1.Text);
                 y2 = Convert.ToInt32(Y2.Text);
+
+                thickness = Convert.ToInt32(brushSize.Text);
+
+                Algorithms.pixelSize = thickness;
 
                 if (antialiasing_type.Text == "MidLine")
                 {
@@ -54,7 +57,9 @@ namespace CG_Proj3
                 }
                 else if (antialiasing_type.Text == "Gupta-Sproull")
                 {
-                    Algorithms.GuptaSproull(mainCanvas, x1, y1, x2, y2, thickness);
+                    //Might want to look at both algorithms, thus not working properly either
+                    //Algorithms.GuptaSproull(mainCanvas, x1, y1, x2, y2, thickness); -- this one hangs in infinite loop
+                    Algorithms.GuptaSproull2(mainCanvas, x1, y1, x2, y2); //this one is close, but draws weird line
                 }
             }
             catch (FormatException ex)
@@ -71,11 +76,15 @@ namespace CG_Proj3
         {
             lineMode = false;
             circleMode = true;
+            int thickness = 1;
 
             try
             {
                 int x1 = Convert.ToInt32(X1.Text);
                 int y1 = Convert.ToInt32(Y1.Text);
+
+                thickness = Convert.ToInt32(brushSize.Text);
+                Algorithms.pixelSize = thickness;
 
                 if (antialiasing_type.Text == "MidLine")
                 {
@@ -113,6 +122,8 @@ namespace CG_Proj3
 
             X1.Text = coordsX.Substring(3);
             Y1.Text = coordsY.Substring(3);
+
+            mouseClicked = true;
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)
@@ -122,6 +133,8 @@ namespace CG_Proj3
 
             X2.Text = coordsX.Substring(3);
             Y2.Text = coordsY.Substring(3);
+
+            mouseClicked = true;
         }
     }
 }

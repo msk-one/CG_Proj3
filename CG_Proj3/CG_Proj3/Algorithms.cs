@@ -14,26 +14,32 @@ namespace CG_Proj3
     class Algorithms
     {
         public static Canvas canvas;
+        public static int pixelSize = 1;
 
         public static void DrawPixel(Canvas c, int x, int y)
         {
-            Rectangle rec = new Rectangle();
+            Ellipse rec = new Ellipse();
             Canvas.SetTop(rec, y);
             Canvas.SetLeft(rec, x);
-            rec.Width = 1;
-            rec.Height = 1;
+            rec.Width = pixelSize;
+            rec.Height = pixelSize;
             rec.Fill = new SolidColorBrush(Colors.Black);
             c.Children.Add(rec);
         }
 
         public static void DrawPixel(Canvas c, int x, int y, int color)
         {
-            Rectangle rec = new Rectangle();
+            Ellipse rec = new Ellipse();
             Canvas.SetTop(rec, y);
             Canvas.SetLeft(rec, x);
-            rec.Width = 1;
-            rec.Height = 1;
-            //rec.Fill = new SolidColorBrush(Color.);
+            rec.Width = pixelSize;
+            rec.Height = pixelSize;
+
+            int r = (color >> 16) & 0xff;
+            int g = (color >> 8) & 0xff;
+            int b = color & 0xff;
+
+            rec.Fill = new SolidColorBrush(Color.FromRgb((byte)r, (byte)g, (byte)b));
             c.Children.Add(rec);
         }
 
@@ -182,7 +188,7 @@ namespace CG_Proj3
         {
             int x = 0;
             int y = R;
-            int d = 1-R;
+            int d = R;
 
             do {
                 if (d < 0) {
@@ -209,31 +215,14 @@ namespace CG_Proj3
         {
             if (d <= r)
             {
-                return (float) (0.5 - (d*Math.Sqrt(r*r - d*d)/(Math.PI*r*r)) - (1/(Math.PI*Math.Asin(d/r))));
+                return (float) (0.5 - ((d*Math.Sqrt(r*r - d*d))/(Math.PI*r*r)) - (1/(Math.PI*Math.Asin(d/r))));
             }
-            else
+            if (d > r)
             {
                 return 0;
             }
+            return 0;
         }
-
-        //public int colorLerp(int A, int B, int l, int L)
-        //{
-        //    int Ar = (A >> 16) & 0xff;
-        //    int Ag = (A >> 8) & 0xff;
-        //    int Ab = A & 0xff;
-        //    int Br = (B >> 16) & 0xff;
-        //    int Bg = (B >> 8) & 0xff;
-        //    int Bb = B & 0xff;
-
-        //    int Yr = (int)(Ar + l * (Br - Ar) / (float)L);
-        //    int Yg = (int)(Ag + l * (Bg - Ag) / (float)L);
-        //    int Yb = (int)(Ab + l * (Bb - Ab) / (float)L);
-        //    return (int) (0xff000000 |
-        //                  ((Yr << 16) & 0xff0000) |
-        //                  ((Yg << 8) & 0xff00) |
-        //                  (Yb & 0xff));
-        //}
 
         private static float lerp(float v0, float v1, float t)
         {
@@ -250,40 +239,150 @@ namespace CG_Proj3
 
         public static void GuptaSproull(Canvas c, int x1, int y1, int x2, int y2, float thickness)
         {
-            int dx = x2 - x1, dy = y2 - y1;
-            int dE = 2 * dy, dNE = 2 * (dy - dx);
-            int d = 2 * dy - dx;
-            int two_v_dx = 0;
+            int dx = Math.Abs(x2 - x1);
+            int dy = Math.Abs(y2 - y1);
+
+            int dE = 2*dy;
+            int dNE = 2 * Math.Abs(dy - dx);
+            int d = 2 * Math.Abs(dy - dx);
+
+            int twoVDx = 0;
             float invDenom = (float)(1 / (2*Math.Sqrt(dx*dx + dy*dy)));
-            float two_dx_invDenom = 2 * dx * invDenom;
-            int x = x1, y = y1;
+            float twoDxInvDenom = 2 * dx * invDenom;
+            int x = x1;
+            int y = y1;
             int i;
 
             IntensifyPixel(c, x, y, thickness, 0);
 
-            for (i = 1; IntensifyPixel(c, x, y + i, thickness, i * two_dx_invDenom) != 0; ++i) ;
-            for (i = 1; IntensifyPixel(c, x, y - i, thickness, i * two_dx_invDenom) != 0; ++i) ;
+            i = 1;
+            while (IntensifyPixel(c, x, y + i, thickness, i * twoDxInvDenom) != 0)
+            {
+                ++i;
+            }
+
+            i = 1;
+            while (IntensifyPixel(c, x, y - i, thickness, i * twoDxInvDenom) != 0)
+            {
+                ++i;
+            }
 
             while (x < x2)
             {
                 ++x;
                 if (d < 0)
                 {
-                    two_v_dx = d+dx;
+                    twoVDx = d+dx;
                     d += dE;
                 }
                 else
                 {
-                    two_v_dx = d-dx;
+                    twoVDx = d-dx;
                     d += dNE;
                     ++y;
                 }
 
-                IntensifyPixel(c, x, y, thickness, two_v_dx * invDenom);
+                IntensifyPixel(c, x, y, thickness, twoVDx * invDenom);
 
-                for (i = 1; IntensifyPixel(c, x, y + i, thickness, i * two_dx_invDenom - two_v_dx * invDenom) != 0; ++i) ;
-                for (i = 1; IntensifyPixel(c, x, y - i, thickness, i * two_dx_invDenom + two_v_dx * invDenom) != 0; ++i) ;
+                i = 1;
+                while (IntensifyPixel(c, x, y + i, thickness, i * twoDxInvDenom - twoVDx * invDenom) != 0)
+                {
+                    ++i;
+                }
+
+                i = 1;
+                while (IntensifyPixel(c, x, y - i, thickness, i * twoDxInvDenom + twoVDx * invDenom) != 0)
+                {
+                    ++i;
+                }
             }
         }
+
+
+        public static void DrawPixel(Canvas c, int x, int y, double dist)
+        {
+            double alpha = 255*(1 - (dist*2/3))*(1 - (dist*2/3));
+
+            Rectangle rec = new Rectangle();
+            Canvas.SetTop(rec, y);
+            Canvas.SetLeft(rec, x);
+            rec.Width = 1;
+            rec.Height = 1;
+
+            int r = 0;
+            int g = 0;
+            int b = 0;
+
+            rec.Fill = new SolidColorBrush(Color.FromArgb((byte)alpha, (byte)r, (byte)g, (byte)b));
+            c.Children.Add(rec);
+        }
+
+        public static void GuptaSproull2(Canvas c, int x0, int y0, int x1, int y1)
+        {
+            int x = x0;
+            int y = y0;
+            int dx = x1 - x0;
+            int dy = y1 - y0;
+            int du;
+            int dv;
+            int u, v;
+            int uincr, vincr;
+
+            if (Math.Abs(dx) > Math.Abs(dy)) {
+                du = Math.Abs(dx);
+                dv = Math.Abs(dy);
+                u = x1;
+                v = y1;
+                uincr = 1;
+                vincr = 1;
+
+                if (dx < 0) uincr = -uincr;
+                if (dy < 0) vincr = -vincr;
+            }
+            else {
+                du = Math.Abs(dy);
+                dv = Math.Abs(dx);
+                u = y1;
+                v = x1;
+                uincr = 1;
+                vincr = 1;
+
+                if (dy < 0) uincr = -uincr;
+                if (dx < 0) vincr = -vincr;
+            }
+
+            int end = u + du;
+            int d = (2*dv) - du;
+            int incrS = 2*dv;
+            int incrD = 2*(dv - du);
+            int twoVDu = 0;
+
+            double invD = 1/(2*Math.Sqrt(du*du + dv*dv));
+            double invD2du = 2*(du*invD);
+            
+            do {
+                DrawPixel(c, x, y, twoVDu * invD);
+                DrawPixel(c, x - vincr, y + vincr, invD2du - twoVDu*invD);
+                DrawPixel(c, x + vincr, y - vincr, invD2du + twoVDu*invD);
+
+                if (d < 0) {
+                    twoVDu = d + du;
+                    d += incrS;
+                }
+                else {
+                    twoVDu = d - du;
+                    d += incrD;
+                    v++;
+                    x += vincr;
+                    y += vincr;
+                }
+
+                u++;
+                x += uincr;
+                y += uincr;
+
+            } while (u < end);
+        }
+
     }
 }

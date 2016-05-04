@@ -32,7 +32,11 @@
             </Grid>
             <Label x:Name="label3" Content="For lines all are required." Height="25"/>
             <Label x:Name="label4" Content="For circles, fill only first set."/>
-            <TextBox x:Name="R" Height="23" TextWrapping="Wrap" Text="Radius (circles)" Margin="45,20,45,0"/>
+            <TextBox x:Name="R" Height="23" TextWrapping="Wrap" Text="R (circles)" Margin="45,10,45,0"/>
+            <Grid Height="40" Margin="0,15,0,0">
+                <Label x:Name="label5" Content="Brush size:" HorizontalAlignment="Left" Margin="10,4,0,0" VerticalAlignment="Top" Width="74"/>
+                <TextBox x:Name="brushSize" HorizontalAlignment="Left" Margin="84,7,0,10" TextWrapping="Wrap" Text="1" Width="58"/>
+            </Grid>
         </StackPanel>
         <StatusBar Height="19" VerticalAlignment="Bottom">
             <StatusBarItem Content="Ready" Height="19" VerticalAlignment="Top" HorizontalAlignment="Right"/>
